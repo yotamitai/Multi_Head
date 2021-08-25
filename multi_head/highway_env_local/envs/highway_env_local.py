@@ -87,64 +87,43 @@ class HighwayEnvLocal(AbstractEnv):
                 )
 
     #def _reward(self, action: Action) -> float:
-    def _reward_1(self, action: Action) -> float:
-         """
-          The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
-    #     :param action: the last action performed
-    #     :return: the corresponding reward
-    #     """
-         lane_change = action == 0 or action == 2
-         neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
-         lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
-             else self.vehicle.lane_index[2]
-         scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
-         reward = \
-             + self.config["lane_change_reward_1"] * lane_change \
-             + self.config["collision_reward"] * self.vehicle.crashed \
-             + self.config["right_lane_reward_1"] * lane / max(len(neighbours) - 1, 1) \
-             + self.config["high_speed_reward_1"] * np.clip(scaled_speed, 0, 1)
-         reward = utils.lmap(reward,
-                             [self.config["collision_reward"],
-                              self.config["lane_change_reward_1"] + self.config["high_speed_reward_1"] + self.config[
-                                  "right_lane_reward_1"]],
-                             [0, 1])
-         reward = 0 if not self.vehicle.on_road else reward
-         return reward
-    #
-    def _reward_2(self, action: Action) -> float:
-        """
-        The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
-        :param action: the last action performed
-        :return: the corresponding reward
-        """
+
+    def _reward(self, action: Action) -> float:
         lane_change = action == 0 or action == 2
         neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
-        lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
+        lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle,
+                                                               ControlledVehicle) \
             else self.vehicle.lane_index[2]
-        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"],
+                                  [0, 1])
+        """reward 1"""
         reward = \
-            + self.config["lane_change_reward_2"] * lane_change\
+            + self.config["lane_change_reward_1"] * lane_change \
+            + self.config["collision_reward"] * self.vehicle.crashed \
+            + self.config["right_lane_reward_1"] * lane / max(len(neighbours) - 1, 1) \
+            + self.config["high_speed_reward_1"] * np.clip(scaled_speed, 0, 1)
+        reward = utils.lmap(reward,
+                            [self.config["collision_reward"],
+                             self.config["lane_change_reward_1"] + self.config[
+                                 "high_speed_reward_1"] + self.config[
+                                 "right_lane_reward_1"]],
+                            [0, 1])
+        reward_1 = 0 if not self.vehicle.on_road else reward
+
+        """reward 2"""
+        reward = \
+            + self.config["lane_change_reward_2"] * lane_change \
             + self.config["collision_reward"] * self.vehicle.crashed \
             + self.config["right_lane_reward_2"] * lane / max(len(neighbours) - 1, 1) \
             + self.config["high_speed_reward_2"] * np.clip(scaled_speed, 0, 1)
         reward = utils.lmap(reward,
-                          [self.config["collision_reward"],
-                           self.config["lane_change_reward_2"]+self.config["high_speed_reward_2"] + self.config["right_lane_reward_2"]],
-                          [0, 1])
-        reward = 0 if not self.vehicle.on_road else reward
-        return reward
+                            [self.config["collision_reward"],
+                             self.config["lane_change_reward_2"] + self.config[
+                                 "high_speed_reward_2"] + self.config["right_lane_reward_2"]],
+                            [0, 1])
+        reward_2 = 0 if not self.vehicle.on_road else reward
 
-    def _reward_3(self, action: Action) -> float:
-        """
-         The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
-         :param action: the last action performed
-         :return: the corresponding reward
-         """
-        lane_change = action == 0 or action == 2
-        neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
-        lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
-            else self.vehicle.lane_index[2]
-        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+        """reward 3"""
         reward = \
             + self.config["lane_change_reward_3"] * lane_change \
             + self.config["collision_reward"] * self.vehicle.crashed \
@@ -152,11 +131,86 @@ class HighwayEnvLocal(AbstractEnv):
             + self.config["high_speed_reward_3"] * np.clip(scaled_speed, 0, 1)
         reward = utils.lmap(reward,
                             [self.config["collision_reward"],
-                             self.config["lane_change_reward_3"] + self.config["high_speed_reward_3"] + self.config[
+                             self.config["lane_change_reward_3"] + self.config[
+                                 "high_speed_reward_3"] + self.config[
                                  "right_lane_reward_3"]],
                             [0, 1])
-        reward = 0 if not self.vehicle.on_road else reward
-        return reward
+        reward_3 = 0 if not self.vehicle.on_road else reward
+
+        return np.array([reward_1, reward_2, reward_3])
+
+
+
+    # def _reward_1(self, action: Action) -> float:
+    #      """
+    #       The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
+    # #     :param action: the last action performed
+    # #     :return: the corresponding reward
+    # #     """
+    #      lane_change = action == 0 or action == 2
+    #      neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
+    #      lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
+    #          else self.vehicle.lane_index[2]
+    #      scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+    #      reward = \
+    #          + self.config["lane_change_reward_1"] * lane_change \
+    #          + self.config["collision_reward"] * self.vehicle.crashed \
+    #          + self.config["right_lane_reward_1"] * lane / max(len(neighbours) - 1, 1) \
+    #          + self.config["high_speed_reward_1"] * np.clip(scaled_speed, 0, 1)
+    #      reward = utils.lmap(reward,
+    #                          [self.config["collision_reward"],
+    #                           self.config["lane_change_reward_1"] + self.config["high_speed_reward_1"] + self.config[
+    #                               "right_lane_reward_1"]],
+    #                          [0, 1])
+    #      reward = 0 if not self.vehicle.on_road else reward
+    #      return reward
+    # #
+    # def _reward_2(self, action: Action) -> float:
+    #     """
+    #     The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
+    #     :param action: the last action performed
+    #     :return: the corresponding reward
+    #     """
+    #     lane_change = action == 0 or action == 2
+    #     neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
+    #     lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
+    #         else self.vehicle.lane_index[2]
+    #     scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+    #     reward = \
+    #         + self.config["lane_change_reward_2"] * lane_change\
+    #         + self.config["collision_reward"] * self.vehicle.crashed \
+    #         + self.config["right_lane_reward_2"] * lane / max(len(neighbours) - 1, 1) \
+    #         + self.config["high_speed_reward_2"] * np.clip(scaled_speed, 0, 1)
+    #     reward = utils.lmap(reward,
+    #                       [self.config["collision_reward"],
+    #                        self.config["lane_change_reward_2"]+self.config["high_speed_reward_2"] + self.config["right_lane_reward_2"]],
+    #                       [0, 1])
+    #     reward = 0 if not self.vehicle.on_road else reward
+    #     return reward
+    #
+    # def _reward_3(self, action: Action) -> float:
+    #     """
+    #      The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
+    #      :param action: the last action performed
+    #      :return: the corresponding reward
+    #      """
+    #     lane_change = action == 0 or action == 2
+    #     neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
+    #     lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
+    #         else self.vehicle.lane_index[2]
+    #     scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+    #     reward = \
+    #         + self.config["lane_change_reward_3"] * lane_change \
+    #         + self.config["collision_reward"] * self.vehicle.crashed \
+    #         + self.config["right_lane_reward_3"] * lane / max(len(neighbours) - 1, 1) \
+    #         + self.config["high_speed_reward_3"] * np.clip(scaled_speed, 0, 1)
+    #     reward = utils.lmap(reward,
+    #                         [self.config["collision_reward"],
+    #                          self.config["lane_change_reward_3"] + self.config["high_speed_reward_3"] + self.config[
+    #                              "right_lane_reward_3"]],
+    #                         [0, 1])
+    #     reward = 0 if not self.vehicle.on_road else reward
+    #     return reward
 
     # def _reward_1(self, action: Action):
     #     neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
@@ -251,5 +305,5 @@ class HighwayEnvLocal(AbstractEnv):
 
 register(
     id='highway_local-v0',
-    entry_point='highway_env_local.envs:HighwayEnvLocal',
+    entry_point='highway_env_local.envs.highway_env_local:HighwayEnvLocal',
 )

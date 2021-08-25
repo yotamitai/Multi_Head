@@ -194,9 +194,9 @@ class AbstractEnv(gym.Env):
         obs = self.observation_type.observe()
         #yaeli
         #reward = self._reward(action)
-        reward_1 = self._reward_1(action)
-        reward_2 = self._reward_2(action)
-        reward_3 = self._reward_3(action)
+        reward = self._reward(action)
+        # reward_2 = self._reward_2(action)
+        # reward_3 = self._reward_3(action)
         terminal = self._is_terminal()
 
         info = {
@@ -210,7 +210,7 @@ class AbstractEnv(gym.Env):
             pass
 
         #return obs, reward, terminal, info
-        return obs, reward_1,reward_2,reward_3, terminal, info
+        return obs, reward, terminal, info
 
     def _simulate(self, action: Optional[Action] = None) -> None:
         """Perform several steps of simulation with constant action."""
