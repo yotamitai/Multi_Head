@@ -1,5 +1,5 @@
 {
-    "__class__": "<class 'multi_head.DQNAgent_local.pytorch_local.DQNAgent'>",
+    "__class__": "<class 'DQNAgent_local_files.pytorch_local.DQNAgent'>",
     "model": {
         "type": "MultiLayerPerceptron",
         "layers": [256, 256]

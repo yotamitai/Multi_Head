@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from tensorboardX import SummaryWriter
 
 import rl_agents.trainer.logger
-from multi_head.DQNAgent_local.monitor_local import MonitorV2
+from DQNAgent_local_files.monitor_local import MonitorV2
 from rl_agents.agents.common.factory import load_environment, load_agent
 from rl_agents.agents.common.graphics import AgentGraphics
 from rl_agents.agents.common.memory import Transition

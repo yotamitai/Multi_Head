@@ -11,7 +11,7 @@ import highway_env_local.envs
 import os
 import sys
 from highway_env_local.envs import highway_env_local
-from multi_head.DQNAgent_local.evaluation_local import Evaluation, logger
+from DQNAgent_local_files.evaluation_local import Evaluation, logger
 from rl_agents.agents.common.exploration.abstract import exploration_factory
 # from utils import show_videos
 #from highway_env_local.scripts.utils import show_videos
@@ -44,18 +44,18 @@ def config(env_config, agent_config):
     return env, agent
 
 
-def train_agent(env_config_path, agent_config_path, num_episodes):
+def train_agent(env_config_path, agent_config_path, num_episodes, output_dir):
     """train agent"""
     f1, f2 = open(env_config_path), open(agent_config_path)
     env_config, agent_config = json.load(f1), json.load(f2)
     env, agent = config(env_config, agent_config)
-    evaluation = MyEvaluation(env, agent, output_dir='out', num_episodes=num_episodes,
+    evaluation = MyEvaluation(env, agent, output_dir=output_dir, num_episodes=num_episodes,
                               display_env=False)
     evaluation.train()
     return evaluation
 
 
-def load_evaluation_agent(load_path, num_episodes):
+def load_evaluation_agent(load_path, num_episodes, output_dir):
     """load agent"""
     config_filename = [x for x in listdir(load_path) if "metadata" in x][0]
     f = open(join(load_path, config_filename))
@@ -63,7 +63,8 @@ def load_evaluation_agent(load_path, num_episodes):
     env_config, agent_config, = config_dict['env'], config_dict['agent']
     env, agent = config(env_config, agent_config)
     agent.exploration_policy = exploration_factory({'method': 'Greedy'}, env.action_space)
-    evaluation = MyEvaluation(env, agent, num_episodes=num_episodes, display_env=True)
+    evaluation = MyEvaluation(env, agent, num_episodes=num_episodes, display_env=True,
+                              output_dir=output_dir)
     agent_path = Path(join(load_path, 'checkpoint-final.tar'))
     evaluation.load_agent_model(agent_path)
     return evaluation
@@ -72,15 +73,16 @@ def test_agent(evaluation):
     evaluation.test()
 
 def main(args):
-    evaluation = load_evaluation_agent(args.load_path, args.num_episodes) if args.load_path \
-        else train_agent(args.env_config, args.agent_config, args.num_episodes)
+    evaluation = load_evaluation_agent(args.load_path, args.num_episodes, args.output_dir) \
+        if args.load_path else \
+        train_agent(args.env_config, args.agent_config, args.num_episodes, args.output_dir)
     if args.eval: test_agent(evaluation)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='multi head')
     args = parser.parse_args()
-
+    args.load_path = None
     # if args.server:
     #     """server"""
     #     sys.path.insert(0,'/data/home/yael123/multi_head/highway_env_local/scripts/')
@@ -94,10 +96,11 @@ if __name__ == '__main__':
     #     sys.path.append(rl_agents_dir)
     #     os.chdir(rl_agents_dir + "scripts")
 
-    args.env_config = 'configs/my_env_config.json'
-    args.agent_config = 'configs/ddqn_agent.json'
+    args.env_config = 'multi_head/configs/my_env_config.json'
+    args.agent_config = 'multi_head/configs/ddqn_agent.json'
     args.num_episodes = 3
-    args.load_path = '/home/yotama/OneDrive/Local_Git/Multi_Head/multi_head/out/HighwayEnvLocal/DQNAgent/run_20210825-112722_81785'
+    # args.load_path = '/home/yotama/OneDrive/Local_Git/Multi_Head/multi_head/out/HighwayEnvLocal/DQNAgent/run_20210825-112722_81785'
     args.eval = True
+    args.output_dir = 'multi_head/out'
 
     main(args)

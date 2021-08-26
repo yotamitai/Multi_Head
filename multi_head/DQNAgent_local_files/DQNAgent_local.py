@@ -6,9 +6,6 @@ from rl_agents.agents.deep_q_network.pytorch import DQNAgent
 
 
 
-
-
-
 class DQNAgentLocal(DQNAgent):
     def __init__(self, env, config=None):
         super(DQNAgent, self).__init__(env, config)
